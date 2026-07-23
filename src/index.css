@@ -1,7 +1,6 @@
 @import "tailwindcss";
 
-
-@theme {
+:root {
   --color-dolphox-dark: #0B132B;
   --color-dolphox-panel: #1C2541;
   --color-dolphox-accent: #00B4D8;
