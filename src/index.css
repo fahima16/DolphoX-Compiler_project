@@ -1,14 +1,9 @@
-body {
-  margin: 0;
-  font-family: system-ui, sans-serif;
-  background: #f2f5ff;
-  color: #0f172a;
-}
+@import "tailwindcss";
 
-#root {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 32px;
+
+@theme {
+  --color-dolphox-dark: #0B132B;
+  --color-dolphox-panel: #1C2541;
+  --color-dolphox-accent: #00B4D8;
+  --color-dolphox-glow: #90E0EF;
 }

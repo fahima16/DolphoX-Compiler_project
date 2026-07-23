@@ -1,16 +1,27 @@
-import { useState } from 'react'
-import './App.css'
+import React, { useState } from 'react';
+import Navbar from './components/Navbar';
+import EditorPanel from './components/EditorPanel';
 
 export default function App() {
-  const [count, setCount] = useState(0)
+  // Theme can be 'dark', 'light', or 'intelligent'
+  const [theme, setTheme] = useState('dark');
+  const [code, setCode] = useState('// Welcome to DolphoX\nconsole.log("Hello from Dolphin AI!");');
+  const [language, setLanguage] = useState('cpp');
 
   return (
-    <div className="app">
-      <h1>DolphoX Compiler</h1>
-      <p>React + Vite is installed and working.</p>
-      <button onClick={() => setCount((c) => c + 1)}>
-        count is {count}
-      </button>
+    <div className={`min-h-screen transition-colors duration-300 ${theme === 'light' ? 'light' : 'dark'}`}>
+      {/* Navbar with the Theme Switcher */}
+      <Navbar currentTheme={theme} setTheme={setTheme} />
+
+      {/* Main Editor View */}
+      <main className="p-4">
+        <EditorPanel 
+          language={language} 
+          code={code} 
+          setCode={setCode} 
+          currentTheme={theme} 
+        />
+      </main>
     </div>
-  )
+  );
 }
