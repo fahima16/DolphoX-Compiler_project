@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 typedef enum {
     NODE_PROGRAM,
@@ -19,15 +20,22 @@ typedef enum {
     NODE_VAR,
     NODE_INT_LIT,
     NODE_FLOAT_LIT,
+    NODE_DOUBLE_LIT,  
+    NODE_CHAR_LIT,  
+    NODE_STRING_LIT,  
+    NODE_BOOL_LIT,
     NODE_ARRAY_DECL,
     NODE_ARRAY_ACCESS
 } NodeType;
 
 typedef struct ASTNode {
     NodeType type;
+    char cval;
     char *sval;
     int ival;
     float fval;
+    double dval;
+    bool bval;
     char *op;
     
     struct ASTNode *left;
@@ -43,6 +51,10 @@ typedef struct ASTNode {
 ASTNode* create_node(NodeType type);
 ASTNode* create_int_node(int val);
 ASTNode* create_float_node(float val);
+ASTNode* create_double_node(double val);
+ASTNode* create_char_node(char val);
+ASTNode* create_string_node(char *val);
+ASTNode* create_bool_node(bool val);
 ASTNode* create_id_node(char *name);
 ASTNode* create_bin_op(char *op, ASTNode *left, ASTNode *right);
 

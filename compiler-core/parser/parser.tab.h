@@ -39,32 +39,38 @@
       know about them.  */
    enum yytokentype {
      ID = 258,
-     INT_LIT = 259,
-     FLOAT_LIT = 260,
-     INT = 261,
-     FLOAT = 262,
-     BOOL = 263,
-     IF = 264,
-     ELSE = 265,
-     WHILE = 266,
-     FOR = 267,
-     PRINT = 268,
-     READ = 269,
-     TRUE = 270,
-     FALSE = 271,
-     EQ = 272,
-     NE = 273,
-     LE = 274,
-     GE = 275,
-     AND = 276,
-     OR = 277,
-     INC = 278,
-     DEC = 279,
-     ADD_ASSIGN = 280,
-     SUB_ASSIGN = 281,
-     MUL_ASSIGN = 282,
-     DIV_ASSIGN = 283,
-     LOWER_THAN_ELSE = 284
+     STRING_LIT = 259,
+     CHAR_LIT = 260,
+     INT_LIT = 261,
+     FLOAT_LIT = 262,
+     DOUBLE_LIT = 263,
+     TRUE = 264,
+     FALSE = 265,
+     INT = 266,
+     FLOAT = 267,
+     DOUBLE = 268,
+     CHAR = 269,
+     STRING = 270,
+     BOOL = 271,
+     IF = 272,
+     ELSE = 273,
+     WHILE = 274,
+     FOR = 275,
+     PRINT = 276,
+     READ = 277,
+     EQ = 278,
+     NE = 279,
+     LE = 280,
+     GE = 281,
+     AND = 282,
+     OR = 283,
+     INC = 284,
+     DEC = 285,
+     ADD_ASSIGN = 286,
+     SUB_ASSIGN = 287,
+     MUL_ASSIGN = 288,
+     DIV_ASSIGN = 289,
+     LOWER_THAN_ELSE = 290
    };
 #endif
 
@@ -75,17 +81,20 @@ typedef union YYSTYPE
 {
 
 /* Line 1685 of yacc.c  */
-#line 14 "parser/parser.y"
+#line 15 "parser/parser.y"
 
+    char cval;
     int ival;
     float fval;
+    double dval;
+    bool bval;
     char* sval;
     struct ASTNode* node;
 
 
 
 /* Line 1685 of yacc.c  */
-#line 89 "parser/parser.tab.h"
+#line 98 "parser/parser.tab.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
