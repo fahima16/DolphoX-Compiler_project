@@ -1,87 +1,103 @@
 import React, { useState } from 'react';
 import Navbar from './components/Navbar';
-import Sidebar from './components/Sidebar';
 import Editorpanel from './components/Editorpanel';
-import OutputPanel from './components/OutputPanel';
 
 export default function App() {
-  const [theme, setTheme] = useState('dark'); // 'dark' or 'light'
-  const [language, setLanguage] = useState('cpp');
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [code, setCode] = useState(
-`int main() 
-{
-    int n = 10;
-    for(int i = 1; i <= n; i++) {
-        printf("Loop iteration: %d\\n", i);
+  const [theme, setTheme] = useState('dark');
+  const [language, setLanguage] = useState('c');
+  const [code, setCode] = useState('int main() {\n    int n = 10;\n    for(int i = 1; i <= n; i++) {\n        printf("Loop iteration: %d\\n", i);\n    }\n    return 0;\n}');
+  
+  const [history, setHistory] = useState([code]);
+  const [historyIndex, setHistoryIndex] = useState(0);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const updateCodeWithHistory = (newCode) => {
+    const updatedHistory = history.slice(0, historyIndex + 1);
+    updatedHistory.push(newCode);
+    setHistory(updatedHistory);
+    setHistoryIndex(updatedHistory.length - 1);
+    setCode(newCode);
+  };
+
+  const handleUndo = () => {
+    if (historyIndex > 0) {
+      const prevIndex = historyIndex - 1;
+      setHistoryIndex(prevIndex);
+      setCode(history[prevIndex]);
     }
-    
-    return 0;
-}`
-  );
-  const [output, setOutput] = useState(
-`DolphoX Compiler Output:
-Loop iteration: 1
-... (omitted lines) ...
-Loop iteration: 10
-Process exited successfully.`
-  );
+  };
+
+  const handleRedo = () => {
+    if (historyIndex < history.length - 1) {
+      const nextIndex = historyIndex + 1;
+      setHistoryIndex(nextIndex);
+      setCode(history[nextIndex]);
+    }
+  };
+
+  const handleNewFile = () => {
+    updateCodeWithHistory('// Write your code here\nint main() {\n    return 0;\n}\n');
+  };
+
+  const handleSave = () => {
+    const extensions = { c: 'c', cpp: 'cpp', java: 'java', python: 'py' };
+    const ext = extensions[language] || 'txt';
+    const blob = new Blob([code], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `main.${ext}`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleBeautify = () => {
+    const cleaned = code
+      .split('\n')
+      .map(line => line.trimEnd())
+      .filter((line, index, arr) => !(line === '' && arr[index - 1] === ''))
+      .join('\n')
+      .trim();
+    updateCodeWithHistory(cleaned);
+  };
 
   const handleRun = () => {
-    setOutput(`Running ${language.toUpperCase()} program...\nLoop execution complete.\nProcess exited successfully.`);
+    const outputBlock = `\n\n/* --- Output (${language.toUpperCase()}) --- \nProgram executed successfully.\n*/`;
+    if (!code.includes('/* --- Output')) {
+      updateCodeWithHistory(code + outputBlock);
+    }
   };
 
   return (
-    <div className={`min-h-screen flex flex-col transition-colors duration-300 select-none ${
-      theme === 'dark' ? 'bg-[#060D1A] text-white' : 'bg-slate-100 text-slate-900'
-    }`}>
+    <div className={`h-screen w-screen flex flex-col overflow-hidden ${theme === 'dark' ? 'bg-[#060D1A]' : 'bg-slate-100'}`}>
       
-      {/* Top Navigation & Toolbars */}
       <Navbar 
         theme={theme} 
         setTheme={setTheme} 
         language={language} 
         setLanguage={setLanguage} 
         onRun={handleRun}
-        toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+        onNewFile={handleNewFile}
+        onSave={handleSave}
+        onBeautify={handleBeautify}
+        onUndo={handleUndo}
+        onRedo={handleRedo}
+        toggleSidebar={() => setSidebarOpen(!sidebarOpen)} 
       />
-
-      {/* Main App Workspace Layout (Side-by-Side like the design) */}
-      <div className="flex flex-1 overflow-hidden relative">
-        
-        {/* Left Management Sidebar (Responsive drawer on mobile, static column on desktop) */}
-        <Sidebar theme={theme} isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
-
-        {/* Right Coding Workspace Area */}
-        <div className="flex-1 flex flex-col p-2 md:p-3 gap-2 md:gap-3 overflow-hidden">
-          
-          {/* Code Editor Panel */}
-          <div className="flex-1 min-h-[260px] md:min-h-[320px]">
-            <Editorpanel 
-              language={language} 
-              code={code} 
-              setCode={setCode} 
-              theme={theme} 
-            />
-          </div>
-
-          {/* Console / Output Panel */}
-          <div className="h-36 md:h-44">
-            <OutputPanel output={output} theme={theme} />
-          </div>
-
-        </div>
-      </div>
-
-      {/* Bottom Status Bar */}
-      <footer className={`flex items-center justify-between px-3 py-1 text-xs border-t ${
-        theme === 'dark' ? 'bg-[#060D1A] border-slate-800 text-slate-400' : 'bg-white border-slate-200 text-slate-600'
-      }`}>
-        <span>Ready</span>
-        <span>UTF-8</span>
-      </footer>
+      
+      <main className="flex-1 p-3 overflow-hidden">
+        <Editorpanel 
+          language={language} 
+          code={code} 
+          setCode={updateCodeWithHistory} 
+          theme={theme} 
+        />
+      </main>
 
     </div>
   );
+
 }
 
