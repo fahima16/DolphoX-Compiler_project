@@ -115,7 +115,7 @@ export default function Navbar({ theme, setTheme, language, setLanguage, onRun, 
           <span className="text-slate-700">|</span>
           <button className="p-1 hover:bg-slate-800 hover:text-white rounded transition"><Download size={14} /></button>
           <button className="p-1 hover:bg-slate-800 hover:text-white rounded transition"><RefreshCw size={14} /></button>
-          <button className="px-2 py-0.5 text-xs bg-slate-800 hover:bg-slate-700 rounded text-slate-300 font-mono">Laob</button>
+          <button className="px-2 py-0.5 text-xs bg-slate-800 hover:bg-slate-700 rounded text-slate-300 font-mono">Lab</button>
           <button className="p-1 hover:bg-slate-800 hover:text-white rounded transition"><Cpu size={14} /></button>
           <button className="p-1 hover:bg-slate-800 hover:text-white rounded transition"><Code2 size={14} /></button>
         </div>

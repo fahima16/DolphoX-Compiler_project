@@ -19,7 +19,7 @@ export default function Editorpanel({ language, code, setCode, theme }) {
         </div>
       </div>
 
-      {/* Monaco Code Editor */}
+      {/* Monaco Code Editor with initial function snippet support */}
       <div className="relative z-0 w-full h-full">
         <Editor
           height="100%"
