@@ -58,19 +58,21 @@
      FOR = 275,
      PRINT = 276,
      READ = 277,
-     EQ = 278,
-     NE = 279,
-     LE = 280,
-     GE = 281,
-     AND = 282,
-     OR = 283,
-     INC = 284,
-     DEC = 285,
-     ADD_ASSIGN = 286,
-     SUB_ASSIGN = 287,
-     MUL_ASSIGN = 288,
-     DIV_ASSIGN = 289,
-     LOWER_THAN_ELSE = 290
+     FUNCTION = 278,
+     RETURN = 279,
+     EQ = 280,
+     NE = 281,
+     LE = 282,
+     GE = 283,
+     AND = 284,
+     OR = 285,
+     INC = 286,
+     DEC = 287,
+     ADD_ASSIGN = 288,
+     SUB_ASSIGN = 289,
+     MUL_ASSIGN = 290,
+     DIV_ASSIGN = 291,
+     LOWER_THAN_ELSE = 292
    };
 #endif
 
@@ -94,7 +96,7 @@ typedef union YYSTYPE
 
 
 /* Line 1685 of yacc.c  */
-#line 98 "parser/parser.tab.h"
+#line 100 "parser/parser.tab.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

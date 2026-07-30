@@ -24,6 +24,8 @@ void yyerror(const char *s);
 "while"         { return WHILE; }
 "for"           { return FOR; }
 "print"         { return PRINT; }
+"function"      { return FUNCTION; }
+"return"        { return RETURN; }
 "true"          { yylval.bval = true; return TRUE; }
 "false"         { yylval.bval = false; return FALSE; }
 "read"          { return READ; }

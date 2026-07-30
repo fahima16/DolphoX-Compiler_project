@@ -55,10 +55,10 @@ void generate_c_code(ASTNode *node, FILE *out, SymbolTable *table) {
             fprintf(out, "    if (");
             generate_c_code(node->cond, out, table);
             fprintf(out, ") ");
-            generate_c_code(node->left ? node->left : node->body, out, table);
-            if (node->right) {
+            generate_c_code(node->body, out, table);
+            if (node->else_body) {
                 fprintf(out, " else ");
-                generate_c_code(node->right, out, table);
+                generate_c_code(node->else_body, out, table);
             }
             break;
 
@@ -66,7 +66,7 @@ void generate_c_code(ASTNode *node, FILE *out, SymbolTable *table) {
             fprintf(out, "    while (");
             generate_c_code(node->cond, out, table);
             fprintf(out, ") ");
-            generate_c_code(node->body ? node->body : node->left, out, table);
+            generate_c_code(node->body, out, table);
             break;
 
         case NODE_FOR:
@@ -88,6 +88,47 @@ void generate_c_code(ASTNode *node, FILE *out, SymbolTable *table) {
             fprintf(out, "    printf(\"%%d\\n\", ");
             generate_c_code(node->left, out, table);
             fprintf(out, ");\n");
+            break;
+
+        case NODE_FUNCTION_DEF:
+            fprintf(out, "    int %s(", node->sval ? node->sval : "func");
+            if (node->left) {
+                ASTNode *param = node->left;
+                while (param) {
+                    fprintf(out, "%s", param->is_parameter ? "int" : "");
+                    if (param->sval) fprintf(out, " %s", param->sval);
+                    if (param->next) fprintf(out, ", ");
+                    param = param->next;
+                }
+            }
+            fprintf(out, ") {\n");
+            generate_c_code(node->right, out, table);
+            fprintf(out, "    }\n");
+            break;
+
+        case NODE_FUNCTION_CALL:
+            fprintf(out, "%s(", node->sval ? node->sval : "func");
+            if (node->left) {
+                ASTNode *arg = node->left;
+                while (arg) {
+                    ASTNode *next_arg = arg->next;
+                    arg->next = NULL;
+                    generate_c_code(arg, out, table);
+                    arg->next = next_arg;
+                    if (next_arg) fprintf(out, ", ");
+                    arg = next_arg;
+                }
+            }
+            fprintf(out, ")");
+            break;
+
+        case NODE_RETURN:
+            fprintf(out, "    return");
+            if (node->left) {
+                fprintf(out, " ");
+                generate_c_code(node->left, out, table);
+            }
+            fprintf(out, ";\n");
             break;
 
         case NODE_BLOCK:
@@ -169,10 +210,10 @@ void generate_cpp_code(ASTNode *node, FILE *out, SymbolTable *table) {
             fprintf(out, "    if (");
             generate_cpp_code(node->cond, out, table);
             fprintf(out, ") ");
-            generate_cpp_code(node->left ? node->left : node->body, out, table);
-            if (node->right) {
+            generate_cpp_code(node->body, out, table);
+            if (node->else_body) {
                 fprintf(out, " else ");
-                generate_cpp_code(node->right, out, table);
+                generate_cpp_code(node->else_body, out, table);
             }
             break;
 
@@ -180,7 +221,7 @@ void generate_cpp_code(ASTNode *node, FILE *out, SymbolTable *table) {
             fprintf(out, "    while (");
             generate_cpp_code(node->cond, out, table);
             fprintf(out, ") ");
-            generate_cpp_code(node->body ? node->body : node->left, out, table);
+            generate_cpp_code(node->body, out, table);
             break;
 
         case NODE_FOR:
@@ -202,6 +243,47 @@ void generate_cpp_code(ASTNode *node, FILE *out, SymbolTable *table) {
             fprintf(out, "    cout << ");
             generate_cpp_code(node->left, out, table);
             fprintf(out, " << endl;\n");
+            break;
+
+        case NODE_FUNCTION_DEF:
+            fprintf(out, "    int %s(", node->sval ? node->sval : "func");
+            if (node->left) {
+                ASTNode *param = node->left;
+                while (param) {
+                    fprintf(out, "%s", param->is_parameter ? "int" : "");
+                    if (param->sval) fprintf(out, " %s", param->sval);
+                    if (param->next) fprintf(out, ", ");
+                    param = param->next;
+                }
+            }
+            fprintf(out, ") {\n");
+            generate_cpp_code(node->right, out, table);
+            fprintf(out, "    }\n");
+            break;
+
+        case NODE_FUNCTION_CALL:
+            fprintf(out, "%s(", node->sval ? node->sval : "func");
+            if (node->left) {
+                ASTNode *arg = node->left;
+                while (arg) {
+                    ASTNode *next_arg = arg->next;
+                    arg->next = NULL;
+                    generate_cpp_code(arg, out, table);
+                    arg->next = next_arg;
+                    if (next_arg) fprintf(out, ", ");
+                    arg = next_arg;
+                }
+            }
+            fprintf(out, ")");
+            break;
+
+        case NODE_RETURN:
+            fprintf(out, "    return");
+            if (node->left) {
+                fprintf(out, " ");
+                generate_cpp_code(node->left, out, table);
+            }
+            fprintf(out, ";\n");
             break;
 
         case NODE_BLOCK:
@@ -282,11 +364,11 @@ void generate_python_code(ASTNode *node, FILE *out, int indent, SymbolTable *tab
             fprintf(out, "if ");
             generate_python_code(node->cond, out, 0, table);
             fprintf(out, ":\n");
-            generate_python_code(node->left ? node->left : node->body, out, indent + 1, table);
-            if (node->right) {
+            generate_python_code(node->body, out, indent + 1, table);
+            if (node->else_body) {
                 print_indent(out, indent);
                 fprintf(out, "else:\n");
-                generate_python_code(node->right, out, indent + 1, table);
+                generate_python_code(node->else_body, out, indent + 1, table);
             }
             break;
 
@@ -295,7 +377,7 @@ void generate_python_code(ASTNode *node, FILE *out, int indent, SymbolTable *tab
             fprintf(out, "while ");
             generate_python_code(node->cond, out, 0, table);
             fprintf(out, ":\n");
-            generate_python_code(node->body ? node->body : node->left, out, indent + 1, table);
+            generate_python_code(node->body, out, indent + 1, table);
             break;
 
         case NODE_FOR:
@@ -327,6 +409,47 @@ void generate_python_code(ASTNode *node, FILE *out, int indent, SymbolTable *tab
             fprintf(out, "print(");
             generate_python_code(node->left, out, 0, table);
             fprintf(out, ")\n");
+            break;
+
+        case NODE_FUNCTION_DEF:
+            print_indent(out, indent);
+            fprintf(out, "def %s(", node->sval ? node->sval : "func");
+            if (node->left) {
+                ASTNode *param = node->left;
+                while (param) {
+                    if (param->sval) fprintf(out, "%s", param->sval);
+                    if (param->next) fprintf(out, ", ");
+                    param = param->next;
+                }
+            }
+            fprintf(out, "):\n");
+            generate_python_code(node->right, out, indent + 1, table);
+            break;
+
+        case NODE_FUNCTION_CALL:
+            fprintf(out, "%s(", node->sval ? node->sval : "func");
+            if (node->left) {
+                ASTNode *arg = node->left;
+                while (arg) {
+                    ASTNode *next_arg = arg->next;
+                    arg->next = NULL;
+                    generate_python_code(arg, out, 0, table);
+                    arg->next = next_arg;
+                    if (next_arg) fprintf(out, ", ");
+                    arg = next_arg;
+                }
+            }
+            fprintf(out, ")");
+            break;
+
+        case NODE_RETURN:
+            print_indent(out, indent);
+            fprintf(out, "return");
+            if (node->left) {
+                fprintf(out, " ");
+                generate_python_code(node->left, out, 0, table);
+            }
+            fprintf(out, "\n");
             break;
 
         case NODE_BLOCK:
@@ -410,10 +533,10 @@ void generate_java_code(ASTNode *node, FILE *out, int indent, SymbolTable *table
             fprintf(out, "if (");
             generate_java_code(node->cond, out, 0, table);
             fprintf(out, ") ");
-            generate_java_code(node->left ? node->left : node->body, out, indent, table);
-            if (node->right) {
+            generate_java_code(node->body, out, indent, table);
+            if (node->else_body) {
                 fprintf(out, " else ");
-                generate_java_code(node->right, out, indent, table);
+                generate_java_code(node->else_body, out, indent, table);
             }
             break;
 
@@ -422,7 +545,7 @@ void generate_java_code(ASTNode *node, FILE *out, int indent, SymbolTable *table
             fprintf(out, "while (");
             generate_java_code(node->cond, out, 0, table);
             fprintf(out, ") ");
-            generate_java_code(node->body ? node->body : node->left, out, indent, table);
+            generate_java_code(node->body, out, indent, table);
             break;
 
         case NODE_FOR:
@@ -446,6 +569,49 @@ void generate_java_code(ASTNode *node, FILE *out, int indent, SymbolTable *table
             fprintf(out, "System.out.println(");
             generate_java_code(node->left, out, 0, table);
             fprintf(out, ");\n");
+            break;
+
+        case NODE_FUNCTION_DEF:
+            print_indent(out, indent);
+            fprintf(out, "static int %s(", node->sval ? node->sval : "func");
+            if (node->left) {
+                ASTNode *param = node->left;
+                while (param) {
+                    fprintf(out, "int %s", param->sval ? param->sval : "p");
+                    if (param->next) fprintf(out, ", ");
+                    param = param->next;
+                }
+            }
+            fprintf(out, ") {\n");
+            generate_java_code(node->right, out, indent + 1, table);
+            print_indent(out, indent);
+            fprintf(out, "}\n");
+            break;
+
+        case NODE_FUNCTION_CALL:
+            fprintf(out, "%s(", node->sval ? node->sval : "func");
+            if (node->left) {
+                ASTNode *arg = node->left;
+                while (arg) {
+                    ASTNode *next_arg = arg->next;
+                    arg->next = NULL;
+                    generate_java_code(arg, out, 0, table);
+                    arg->next = next_arg;
+                    if (next_arg) fprintf(out, ", ");
+                    arg = next_arg;
+                }
+            }
+            fprintf(out, ")");
+            break;
+
+        case NODE_RETURN:
+            print_indent(out, indent);
+            fprintf(out, "return");
+            if (node->left) {
+                fprintf(out, " ");
+                generate_java_code(node->left, out, 0, table);
+            }
+            fprintf(out, ";\n");
             break;
 
         case NODE_BLOCK:

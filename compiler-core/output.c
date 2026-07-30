@@ -1,11 +1,22 @@
 #include <stdio.h>
 
 int main() {
-    int count;
-    int c1;
-    count = 5;
-    c1 = 6;
-    printf("%d\n", count);
-    printf("%d\n", c1);
+    int add(int a, int b) {
+{
+    if (a > b) {
+    return a;
+    }
+    return b;
+    }
+    }
+    int x;
+    x = add(5, 3);
+    printf("%d\n", x);
+    int i;
+    i = 0;
+    while (i < 3) {
+    printf("%d\n", i);
+    i = i + 1;
+    }
     return 0;
 }

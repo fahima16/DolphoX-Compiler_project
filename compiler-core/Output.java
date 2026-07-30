@@ -3,12 +3,23 @@ import java.util.Scanner;
 public class Output {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        int count;
-        int c1;
-        count = 5;
-        c1 = 6;
-        System.out.println(count);
-        System.out.println(c1);
+        static int add(int a, int b) {
+{
+                if (a > b) {
+                    return a;
+                }
+                return b;
+            }
+        }
+        int x;
+        x = add(5, 3);
+        System.out.println(x);
+        int i;
+        i = 0;
+        while (i < 3) {
+            System.out.println(i);
+            i = i + 1;
+        }
         scanner.close();
     }
 }

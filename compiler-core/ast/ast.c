@@ -80,6 +80,9 @@ void print_ast(ASTNode *node, int indent) {
         case NODE_FOR: printf("For Loop\n"); break;
         case NODE_BLOCK: printf("Block {}\n"); break;
         case NODE_BINARY_OP: printf("BinaryOp (%s)\n", node->op ? node->op : "?"); break;
+        case NODE_FUNCTION_DEF: printf("Function Def: %s\n", node->sval ? node->sval : "unknown"); break;
+        case NODE_FUNCTION_CALL: printf("Function Call: %s\n", node->sval ? node->sval : "unknown"); break;
+        case NODE_RETURN: printf("Return\n"); break;
         case NODE_VAR: printf("Var (%s)\n", node->sval ? node->sval : "unknown"); break;
         case NODE_INT_LIT: printf("Int (%d)\n", node->ival); break;
         case NODE_FLOAT_LIT: printf("Float (%f)\n", node->fval); break;

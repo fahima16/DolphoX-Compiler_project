@@ -1,7 +1,18 @@
-int count;
-float c1;
-count = 5;
-c1= 6;
-print(count);
-print(c1);
+function int add(int a, int b) {
+    if (a > b) {
+        return a;
+    }
+    return b;
+}
+
+int x;
+x = add(5, 3);
+print(x);
+
+int i;
+i = 0;
+while (i < 3) {
+    print(i);
+    i = i + 1;
+}
 

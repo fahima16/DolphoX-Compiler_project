@@ -1,8 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "tac.h"
+#include "optimizer.h"
 #include "ast/ast.h"
 #include "symbol_table/symbol_table.h"
-#include "symbol_table/semantic.h" // <<< NEW: Semantic module Include
+#include "symbol_table/semantic.h"
 #include "codegen/codegen.h"
 #include "parser/parser.tab.h"
 
@@ -133,6 +135,8 @@ int main(int argc, char **argv) {
                 printf("\n[Semantic Check Failed] Total %d error(s) found. Aborting Code Generation!\n", semantic_errors);
             } else {
                 printf("\nSemantic Analysis Completed: 0 errors.\n");
+                printTAC();
+                optimizeCode();
 
                 // --- Terminal Output for All Target Languages ---
                 printf("\n=========================================\n");

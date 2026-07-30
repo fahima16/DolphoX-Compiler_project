@@ -28,11 +28,11 @@ ASTNode *root = NULL;
 %token <fval> FLOAT_LIT
 %token <dval> DOUBLE_LIT
 %token <bval> TRUE FALSE
-%token INT FLOAT DOUBLE CHAR STRING BOOL IF ELSE WHILE FOR PRINT READ
+%token INT FLOAT DOUBLE CHAR STRING BOOL IF ELSE WHILE FOR PRINT READ FUNCTION RETURN
 %token EQ NE LE GE AND OR INC DEC
 %token ADD_ASSIGN SUB_ASSIGN MUL_ASSIGN DIV_ASSIGN
 
-%type <node> program statement_list statement declaration_stmt id_list declarator assignment_stmt read_stmt print_stmt if_stmt while_stmt for_stmt block_stmt expr
+%type <node> program statement_list statement declaration_stmt id_list declarator assignment_stmt read_stmt print_stmt if_stmt while_stmt for_stmt block_stmt function_def return_stmt param_list param expr arg_list
 %type <ival> type
 
 %nonassoc LOWER_THAN_ELSE
@@ -78,6 +78,54 @@ statement:
     | while_stmt          { $$ = $1; }
     | for_stmt            { $$ = $1; }
     | block_stmt          { $$ = $1; }
+    | function_def        { $$ = $1; }
+    | return_stmt         { $$ = $1; }
+    ;
+
+function_def:
+    FUNCTION type ID '(' ')' block_stmt {
+        $$ = create_node(NODE_FUNCTION_DEF);
+        $$->sval = strdup($3);
+        $$->ival = $2;
+        $$->left = NULL;
+        $$->right = $6;
+    }
+    | FUNCTION type ID '(' param_list ')' block_stmt {
+        $$ = create_node(NODE_FUNCTION_DEF);
+        $$->sval = strdup($3);
+        $$->ival = $2;
+        $$->left = $5;
+        $$->right = $7;
+    }
+    ;
+
+return_stmt:
+    RETURN expr ';' {
+        $$ = create_node(NODE_RETURN);
+        $$->left = $2;
+    }
+    | RETURN ';' {
+        $$ = create_node(NODE_RETURN);
+    }
+    ;
+
+param_list:
+    param { $$ = $1; }
+    | param_list ',' param {
+        ASTNode *curr = $1;
+        while (curr->next != NULL) curr = curr->next;
+        curr->next = $3;
+        $$ = $1;
+    }
+    ;
+
+param:
+    type ID {
+        $$ = create_node(NODE_DECLARATION);
+        $$->sval = strdup($2);
+        $$->left = create_int_node($1);
+        $$->is_parameter = 1;
+    }
     ;
 
 declaration_stmt:
@@ -168,44 +216,39 @@ print_stmt:
 if_stmt:
       IF '(' expr ')' statement %prec LOWER_THAN_ELSE { 
         $$ = create_node(NODE_IF); 
-        $$->left = $3;    /* left = condition */
-        $$->right = $5;   /* right = body */
+        $$->cond = $3;
+        $$->body = $5;
     }
     | IF '(' expr ')' statement ELSE statement { 
         $$ = create_node(NODE_IF); 
-        $$->left = $3;    /* left = condition */
-        $$->right = $5;   /* right = then body */
-        $$->next = $7;    /* next = else body (আপনার codegen এ else body কিন্তু next দিয়ে ধরা হয়েছে) */
+        $$->cond = $3;
+        $$->body = $5;
+        $$->else_body = $7;
     }
     ;
 
 while_stmt:
     WHILE '(' expr ')' statement { 
         $$ = create_node(NODE_WHILE); 
-        $$->left = $3;    /* left = condition */
-        $$->right = $5;   /* right = body */
+        $$->cond = $3;
+        $$->body = $5;
     }
     ;
 
 for_stmt:
     FOR '(' assignment_stmt ';' expr ';' expr ')' statement {
         $$ = create_node(NODE_FOR);
-        $$->left = $3;     /* init */
-        $$->right = $5;    /* cond */
-        
-        /* incr and body mapping */
-        ASTNode *incr_node = $7;
-        incr_node->next = $9; // body
-        $$->next = incr_node;
+        $$->init = $3;
+        $$->cond = $5;
+        $$->incr = $7;
+        $$->body = $9;
     }
     | FOR '(' assignment_stmt ';' expr ';' assignment_stmt ')' statement {
         $$ = create_node(NODE_FOR);
-        $$->left = $3;     /* init */
-        $$->right = $5;    /* cond */
-        
-        ASTNode *incr_node = $7;
-        incr_node->next = $9; // body
-        $$->next = incr_node;
+        $$->init = $3;
+        $$->cond = $5;
+        $$->incr = $7;
+        $$->body = $9;
     }
     ;
 
@@ -228,6 +271,8 @@ expr:
     | ID INC                  { $$ = create_node(NODE_BINARY_OP); $$->op = strdup("++"); $$->left = create_id_node($1); }
     | ID DEC                  { $$ = create_node(NODE_BINARY_OP); $$->op = strdup("--"); $$->left = create_id_node($1); }
     | ID '[' expr ']'         { $$ = create_node(NODE_ARRAY_ACCESS); $$->sval = strdup($1); $$->left = $3; }
+    | ID '(' ')'              { $$ = create_node(NODE_FUNCTION_CALL); $$->sval = strdup($1); $$->left = NULL; }
+    | ID '(' arg_list ')'     { $$ = create_node(NODE_FUNCTION_CALL); $$->sval = strdup($1); $$->left = $3; }
     | expr '+' expr           { $$ = create_bin_op("+", $1, $3); }
     | expr '-' expr           { $$ = create_bin_op("-", $1, $3); }
     | expr '*' expr           { $$ = create_bin_op("*", $1, $3); }
@@ -242,6 +287,16 @@ expr:
     | expr '<' expr           { $$ = create_bin_op("<", $1, $3); }
     | expr '>' expr           { $$ = create_bin_op(">", $1, $3); }
     | '(' expr ')'            { $$ = $2; }
+    ;
+
+arg_list:
+    expr { $$ = $1; }
+    | arg_list ',' expr {
+        ASTNode *curr = $1;
+        while (curr->next != NULL) curr = curr->next;
+        curr->next = $3;
+        $$ = $1;
+    }
     ;
 
 %%

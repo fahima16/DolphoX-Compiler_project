@@ -2,11 +2,22 @@
 using namespace std;
 
 int main() {
-    int count;
-    int c1;
-    count = 5;
-    c1 = 6;
-    cout << count << endl;
-    cout << c1 << endl;
+    int add(int a, int b) {
+{
+    if (a > b) {
+    return a;
+    }
+    return b;
+    }
+    }
+    int x;
+    x = add(5, 3);
+    cout << x << endl;
+    int i;
+    i = 0;
+    while (i < 3) {
+    cout << i << endl;
+    i = i + 1;
+    }
     return 0;
 }

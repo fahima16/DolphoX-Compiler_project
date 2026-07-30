@@ -17,6 +17,9 @@ typedef enum {
     NODE_FOR,
     NODE_BLOCK,
     NODE_BINARY_OP,
+    NODE_FUNCTION_DEF,
+    NODE_FUNCTION_CALL,
+    NODE_RETURN,
     NODE_VAR,
     NODE_INT_LIT,
     NODE_FLOAT_LIT,
@@ -46,6 +49,7 @@ typedef struct ASTNode {
     struct ASTNode *incr;
     struct ASTNode *body;
     struct ASTNode *else_body;
+    int is_parameter;
 } ASTNode;
 
 ASTNode* create_node(NodeType type);

@@ -79,13 +79,12 @@ void analyze_semantics(ASTNode *node, SymbolTable *table) {
             if (node->cond) analyze_semantics(node->cond, table);
             
             enter_scope(table);
-            if (node->left) analyze_semantics(node->left, table);
-            else if (node->body) analyze_semantics(node->body, table);
+            if (node->body) analyze_semantics(node->body, table);
             exit_scope(table);
 
-            if (node->right) {
+            if (node->else_body) {
                 enter_scope(table);
-                analyze_semantics(node->right, table);
+                analyze_semantics(node->else_body, table);
                 exit_scope(table);
             }
             break;
@@ -94,13 +93,14 @@ void analyze_semantics(ASTNode *node, SymbolTable *table) {
             if (node->cond) analyze_semantics(node->cond, table);
             
             enter_scope(table);
-            analyze_semantics(node->body ? node->body : node->left, table);
+            if (node->body) analyze_semantics(node->body, table);
             exit_scope(table);
             break;
 
         case NODE_BLOCK:
             enter_scope(table);
-            analyze_semantics(node->body ? node->body : node->left, table);
+            if (node->body) analyze_semantics(node->body, table);
+            else if (node->left) analyze_semantics(node->left, table);
             exit_scope(table);
             break;
 
