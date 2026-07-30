@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "ast/ast.h"
 #include "symbol_table/symbol_table.h"
+#include "symbol_table/semantic.h" // <<< NEW: Semantic module Include
 #include "codegen/codegen.h"
 #include "parser/parser.tab.h"
 
@@ -17,6 +18,7 @@ void analyze_ast(ASTNode *node) {
     if (!node) return;
 
     switch (node->type) {
+        // --- [SAME AS BEFORE] Variable Declaration ---
         case NODE_DECLARATION: {
             DataType type = TYPE_UNKNOWN;
             if (node->left) {
@@ -29,6 +31,7 @@ void analyze_ast(ASTNode *node) {
             break;
         }
 
+        // --- [SAME AS BEFORE] Array Declaration ---
         case NODE_ARRAY_DECL: {
             DataType type = TYPE_UNKNOWN;
             if (node->left) {
@@ -41,10 +44,40 @@ void analyze_ast(ASTNode *node) {
             break;
         }
 
+        // --- [SAME AS BEFORE] Variable Use Check ---
         case NODE_VAR: {
             if (lookup_symbol(sym_table, node->sval) == NULL) {
                 printf("Semantic Error: Variable '%s' used before declaration\n", node->sval);
                 semantic_errors++;
+            }
+            break;
+        }
+
+        // --- 🔴 [NEW ADDITION 1] Assignment Statement Check ---
+        case NODE_ASSIGN: {
+            // Variable declaration/existence check on left side of assignment
+            if (node->left && node->left->sval) {
+                Symbol *sym = lookup_symbol(sym_table, node->left->sval);
+                if (sym == NULL) {
+                    printf("Semantic Error: Assignment to undeclared variable '%s'\n", node->left->sval);
+                    semantic_errors++;
+                } else {
+                    sym->is_initialized = 1; // <<< NEW: Mark variable as initialized
+                }
+            }
+            break;
+        }
+
+        // --- 🔴 [NEW ADDITION 2] Read/Input Statement Check ---
+        case NODE_READ: {
+            if (node->left && node->left->sval) {
+                Symbol *sym = lookup_symbol(sym_table, node->left->sval);
+                if (sym == NULL) {
+                    printf("Semantic Error: Read target '%s' is not declared\n", node->left->sval);
+                    semantic_errors++;
+                } else {
+                    sym->is_initialized = 1; // <<< NEW: Mark variable as initialized after read
+                }
             }
             break;
         }
@@ -92,14 +125,18 @@ int main(int argc, char **argv) {
             printf("\n=== Symbol Table ===\n");
             print_symbol_table(sym_table);
 
+            // -----------------------------------------------------------------
+            // 🔴 [NEW ADDITION 3] Code Generation Guard
+            // If semantic_errors > 0, stop and do not generate target codes.
+            // -----------------------------------------------------------------
             if (semantic_errors > 0) {
-                printf("\nSemantic Analysis Failed with %d error(s).\n", semantic_errors);
+                printf("\n[Semantic Check Failed] Total %d error(s) found. Aborting Code Generation!\n", semantic_errors);
             } else {
                 printf("\nSemantic Analysis Completed: 0 errors.\n");
 
                 // --- Terminal Output for All Target Languages ---
                 printf("\n=========================================\n");
-                printf("        GENERATED TARGET CODE            \n");
+                printf("         GENERATED TARGET CODE          \n");
                 printf("=========================================\n");
 
                 printf("\n--- Generated C Code ---\n");

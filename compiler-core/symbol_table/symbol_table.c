@@ -1,4 +1,5 @@
 #include "symbol_table.h"
+#include "parser/parser.tab.h"  
 
 
 SymbolTable* create_symbol_table(void) {
@@ -128,12 +129,12 @@ const char* data_type_to_string(DataType type) {
 DataType token_to_data_type(int token) {
     /* parser.tab.h টোকেন ভ্যালু অনুযায়ী ম্যাপিং */
     switch (token) {
-        case 258: return TYPE_INT;     /* INT টোকেনের ভ্যালু অনুসারে */
-        case 259: return TYPE_FLOAT;
-        case 260: return TYPE_DOUBLE;
-        case 261: return TYPE_CHAR;
-        case 262: return TYPE_STRING;
-        case 263: return TYPE_BOOL;
+        case INT: return TYPE_INT;     /* INT টোকেনের ভ্যালু অনুসারে */
+        case FLOAT: return TYPE_FLOAT;
+        case DOUBLE: return TYPE_DOUBLE;
+        case CHAR: return TYPE_CHAR;
+        case STRING: return TYPE_STRING;
+        case BOOL: return TYPE_BOOL;
         default:  return TYPE_UNKNOWN;
     }
 }

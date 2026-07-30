@@ -7,5 +7,6 @@ int main() {
     count = 5;
     c1 = 6;
     cout << count << endl;
+    cout << c1 << endl;
     return 0;
 }

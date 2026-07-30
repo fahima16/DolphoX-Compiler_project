@@ -6,5 +6,6 @@ int main() {
     count = 5;
     c1 = 6;
     printf("%d\n", count);
+    printf("%d\n", c1);
     return 0;
 }

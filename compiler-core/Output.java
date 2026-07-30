@@ -8,6 +8,7 @@ public class Output {
         count = 5;
         c1 = 6;
         System.out.println(count);
+        System.out.println(c1);
         scanner.close();
     }
 }
