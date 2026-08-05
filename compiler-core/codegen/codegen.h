@@ -11,7 +11,7 @@
 void generate_c_code(ASTNode *node, FILE *out, SymbolTable *table);
 void generate_cpp_code(ASTNode *node, FILE *out, SymbolTable *table);
 void generate_python_code(ASTNode *node, FILE *out, int indent, SymbolTable *table);
-void generate_java_code(ASTNode *node, FILE *out, int indent, SymbolTable *table);
+void generate_java_code(ASTNode *node, FILE *out, int indent, SymbolTable *table, const char *class_name);
 
 /* Utility Helper Function to print indentation for Python & Java */
 void print_indentation(FILE *out, int indent);

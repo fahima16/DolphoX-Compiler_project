@@ -1,12 +1,12 @@
-def add(a, b):
-    if a > b:
-        return a
-    return b
 x = 0
-x = add(5, 3)
+x = 5
 print(x)
-i = 0
-i = 0
-while i < 3:
-    print(i)
-    i = i + 1
+y = 0
+y = 3
+if x > y:
+    print(x)
+else:
+    print(y)
+z = 0
+z = x + y
+print(z)

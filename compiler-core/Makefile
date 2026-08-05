@@ -19,5 +19,5 @@ $(TARGET): lexer/lex.yy.c parser/parser.tab.c ast/ast.c symbol_table/symbol_tabl
 
 
 clean:
-	rm -f lexer/lex.yy.c parser/parser.tab.* parser/parser.output $(TARGET) $(TARGET).exe output.c output.cpp output.py Output.java
+	rm -f lexer/lex.yy.c parser/parser.tab.* parser/parser.output $(TARGET) $(TARGET).exe output.c output.cpp output.py *.java
 	

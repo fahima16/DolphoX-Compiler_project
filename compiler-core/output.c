@@ -1,22 +1,19 @@
 #include <stdio.h>
 
 int main() {
-    int add(int a, int b) {
-{
-    if (a > b) {
-    return a;
-    }
-    return b;
-    }
-    }
     int x;
-    x = add(5, 3);
+    x = 5;
     printf("%d\n", x);
-    int i;
-    i = 0;
-    while (i < 3) {
-    printf("%d\n", i);
-    i = i + 1;
+    int y;
+    y = 3;
+    if (x > y) {
+        printf("%d\n", x);
     }
+    else {
+        printf("%d\n", y);
+    }
+    int z;
+    z = x + y;
+    printf("%d\n", z);
     return 0;
 }

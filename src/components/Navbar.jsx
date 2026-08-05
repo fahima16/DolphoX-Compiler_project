@@ -34,12 +34,31 @@ export default function Navbar({
 
 
 
-          <div className="hidden lg:flex items-center space-x-1.5 border-l border-slate-700/50 pl-4">
+          <div className="flex flex-wrap items-center gap-1.5 border-l border-slate-700/50 pl-4">
             <button onClick={onNewFile} className="p-1.5 bg-slate-800 hover:bg-slate-700 rounded text-slate-300 shadow cursor-pointer" title="New File"><FileText size={15} /></button>
             <button onClick={onNewFile} className="p-1.5 bg-slate-800 hover:bg-slate-700 rounded text-slate-300 shadow cursor-pointer" title="New Project"><FolderPlus size={15} /></button>
             <button onClick={onSave} className="p-1.5 bg-slate-800 hover:bg-slate-700 rounded text-slate-300 shadow cursor-pointer" title="Save"><Save size={15} /></button>
             
-            <button onClick={onRun} className="flex items-center space-x-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded text-xs font-semibold shadow ml-2 cursor-pointer">
+            <button
+              onMouseDown={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                onRun(event);
+              }}
+              onTouchStart={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                onRun(event);
+              }}
+              onClick={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                onRun(event);
+              }}
+              title="Run"
+              aria-label="Run"
+              className="flex items-center space-x-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded text-xs font-semibold shadow ml-2 cursor-pointer"
+            >
               <Play size={13} /> <span>Run</span>
             </button>
             <button className="flex items-center space-x-1 px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded text-xs font-semibold shadow cursor-pointer">

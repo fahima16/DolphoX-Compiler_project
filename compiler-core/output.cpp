@@ -2,22 +2,19 @@
 using namespace std;
 
 int main() {
-    int add(int a, int b) {
-{
-    if (a > b) {
-    return a;
-    }
-    return b;
-    }
-    }
     int x;
-    x = add(5, 3);
+    x = 5;
     cout << x << endl;
-    int i;
-    i = 0;
-    while (i < 3) {
-    cout << i << endl;
-    i = i + 1;
+    int y;
+    y = 3;
+    if (x > y) {
+        cout << x << endl;
     }
+    else {
+        cout << y << endl;
+    }
+    int z;
+    z = x + y;
+    cout << z << endl;
     return 0;
 }

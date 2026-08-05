@@ -6,7 +6,13 @@ export default function App() {
   const [theme, setTheme] = useState('dark');
   const [language, setLanguage] = useState('c');
   const [code, setCode] = useState('int main() {\n    int n = 10;\n    for(int i = 1; i <= n; i++) {\n        printf("Loop iteration: %d\\n", i);\n    }\n    return 0;\n}');
+  const [inputText, setInputText] = useState('');
   
+  const [outputCode, setOutputCode] = useState('');
+  const [outputStatus, setOutputStatus] = useState('idle');
+  const [isLoading, setIsLoading] = useState(false);
+
+
   const [history, setHistory] = useState([code]);
   const [historyIndex, setHistoryIndex] = useState(0);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -37,6 +43,7 @@ export default function App() {
 
   const handleNewFile = () => {
     updateCodeWithHistory('// Write your code here\nint main() {\n    return 0;\n}\n');
+    setOutputCode('');
   };
 
   const handleSave = () => {
@@ -63,10 +70,30 @@ export default function App() {
     updateCodeWithHistory(cleaned);
   };
 
-  const handleRun = () => {
-    const outputBlock = `\n\n/* --- Output (${language.toUpperCase()}) --- \nProgram executed successfully.\n*/`;
-    if (!code.includes('/* --- Output')) {
-      updateCodeWithHistory(code + outputBlock);
+  const handleRun = async (e) => {
+    if (e) e.preventDefault();
+    setIsLoading(true);
+    setOutputStatus('running');
+    setOutputCode('Compiling and running code...');
+
+    try {
+      const response = await fetch('/api/compile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code, language, input: inputText })
+      });
+
+      const data = await response.json();
+      const outputText = data?.output || (data?.success ? '(no output)' : 'Compilation failed.');
+      setOutputCode(outputText);
+      setOutputStatus(data?.success ? 'success' : 'error');
+    } catch (error) {
+      const errMsg = error instanceof Error ? error.message : 'Failed to connect to backend compiler server.';
+      const fallbackMessage = `Error:\n${errMsg}`;
+      setOutputCode(fallbackMessage);
+      setOutputStatus('error');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -85,6 +112,7 @@ export default function App() {
         onUndo={handleUndo}
         onRedo={handleRedo}
         toggleSidebar={() => setSidebarOpen(!sidebarOpen)} 
+        isLoading={isLoading}
       />
       
       <main className="flex-1 p-3 overflow-hidden">
@@ -92,7 +120,12 @@ export default function App() {
           language={language} 
           code={code} 
           setCode={updateCodeWithHistory} 
+          inputText={inputText}
+          setInputText={setInputText}
           theme={theme} 
+          outputCode={outputCode}
+          outputStatus={outputStatus}
+          isLoading={isLoading}
         />
       </main>
 

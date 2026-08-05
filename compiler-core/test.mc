@@ -1,18 +1,16 @@
-function int add(int a, int b) {
-    if (a > b) {
-        return a;
-    }
-    return b;
-}
-
 int x;
-x = add(5, 3);
+x = 5;
 print(x);
 
-int i;
-i = 0;
-while (i < 3) {
-    print(i);
-    i = i + 1;
+int y;
+y = 3;
+if (x > y) {
+    print(x);
+} else {
+    print(y);
 }
+
+int z;
+z = x + y;
+print(z);
 
