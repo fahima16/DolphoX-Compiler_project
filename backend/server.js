@@ -10,16 +10,8 @@ app.use(express.json());
 
 // টেম্পোরারি ফোল্ডার না থাকলে বানিয়ে নেবে
 const tempDir = path.join(__dirname, 'temp');
-if (!fs.existsSync(tempDir)) {
-    fs.mkdirSync(tempDir, { recursive: true });
-}
 
-const getTempFilePath = (prefix, ext) => {
-    const uniqueSuffix = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
-    return path.join(tempDir, `${prefix}_${uniqueSuffix}${ext}`);
-};
-
-const cleanupStaleArtifacts = (filePath) => {
+const deleteFileIfExists = (filePath) => {
     try {
         if (fs.existsSync(filePath)) {
             fs.unlinkSync(filePath);
@@ -29,6 +21,37 @@ const cleanupStaleArtifacts = (filePath) => {
     }
 };
 
+const cleanupTempDir = () => {
+    try {
+        if (fs.existsSync(tempDir)) {
+            fs.rmSync(tempDir, { recursive: true, force: true });
+        }
+    } catch (error) {
+        // ignore cleanup failures
+    }
+    fs.mkdirSync(tempDir, { recursive: true });
+};
+
+const getTempFilePath = (prefix, ext) => {
+    const uniqueSuffix = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+    return path.join(tempDir, `${prefix}_${uniqueSuffix}${ext}`);
+};
+
+const cleanupStaleArtifacts = (filePath) => {
+    deleteFileIfExists(filePath);
+};
+
+const normalizeScanfPrompt = (source) => {
+    return source.replace(/scanf\(\s*"([^"]*?)%([^"]*)"\s*,/g, (match, prefix, suffix) => {
+        const prompt = prefix;
+        if (!prompt.trim()) {
+            return match;
+        }
+        const escapedPrompt = prompt.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+        return `printf("${escapedPrompt}"); scanf("%${suffix}",`;
+    });
+};
+
 const ensureOutputDir = () => {
     const outputDir = path.join(tempDir, 'out');
     if (!fs.existsSync(outputDir)) {
@@ -36,6 +59,9 @@ const ensureOutputDir = () => {
     }
     return outputDir;
 };
+
+cleanupTempDir();
+
 
 const runProcess = (command, args, inputText, timeoutMs = 10000) => new Promise((resolve, reject) => {
     const child = spawn(command, args, { windowsHide: true, shell: false });
@@ -106,7 +132,7 @@ app.post('/api/compile', async (req, res) => {
 
     try {
         if (selectedLang === 'c') {
-            let cCode = code;
+            let cCode = normalizeScanfPrompt(code);
             if (!cCode.includes('#include <stdio.h>')) {
                 cCode = '#include <stdio.h>\n\n' + cCode;
             }
@@ -114,9 +140,11 @@ app.post('/api/compile', async (req, res) => {
             fs.writeFileSync(sourceFilePath, cCode);
             const outputDir = ensureOutputDir();
             const exePath = path.join(outputDir, `main_${path.basename(sourceFilePath).replace(/\.c$/, '')}.exe`);
-            cleanupStaleArtifacts(exePath);
+            deleteFileIfExists(exePath);
             await runProcess('gcc', [sourceFilePath, '-o', exePath], '');
             const result = await runProcess(exePath, [], inputText);
+            deleteFileIfExists(sourceFilePath);
+            deleteFileIfExists(exePath);
             return res.json({ success: true, output: (result.stdout || result.stderr || '').trim() });
         }
 
@@ -131,9 +159,11 @@ app.post('/api/compile', async (req, res) => {
             fs.writeFileSync(sourceFilePath, cppCode);
             const outputDir = ensureOutputDir();
             const exePath = path.join(outputDir, `main_${path.basename(sourceFilePath).replace(/\.cpp$/, '')}.exe`);
-            cleanupStaleArtifacts(exePath);
+            deleteFileIfExists(exePath);
             await runProcess('g++', [sourceFilePath, '-o', exePath], '');
             const result = await runProcess(exePath, [], inputText);
+            deleteFileIfExists(sourceFilePath);
+            deleteFileIfExists(exePath);
             return res.json({ success: true, output: (result.stdout || result.stderr || '').trim() });
         }
 
@@ -141,6 +171,7 @@ app.post('/api/compile', async (req, res) => {
             const sourceFilePath = getTempFilePath('main', '.py');
             fs.writeFileSync(sourceFilePath, code);
             const result = await runProcess('python', [sourceFilePath], inputText);
+            deleteFileIfExists(sourceFilePath);
             return res.json({ success: true, output: (result.stdout || result.stderr || '').trim() });
         }
 
@@ -184,11 +215,11 @@ app.post('/api/compile', async (req, res) => {
                 fs.mkdirSync(javaOutputDir, { recursive: true });
             }
             const javaClassFile = path.join(javaOutputDir, `${className}.class`);
-            if (fs.existsSync(javaClassFile)) {
-                fs.unlinkSync(javaClassFile);
-            }
+            deleteFileIfExists(javaClassFile);
             await runProcess('javac', ['-d', javaOutputDir, sourceFilePath], '');
             const result = await runProcess('java', ['-cp', javaOutputDir, className], inputText);
+            deleteFileIfExists(sourceFilePath);
+            deleteFileIfExists(javaClassFile);
             return res.json({ success: true, output: (result.stdout || result.stderr || '').trim() });
         }
 

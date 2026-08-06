@@ -1,16 +1,15 @@
 import React, { useState } from 'react';
 import Navbar from './components/Navbar';
 import Editorpanel from './components/Editorpanel';
+import TerminalPanel from './components/TerminalPanel';
 
 export default function App() {
   const [theme, setTheme] = useState('dark');
   const [language, setLanguage] = useState('c');
   const [code, setCode] = useState('int main() {\n    int n = 10;\n    for(int i = 1; i <= n; i++) {\n        printf("Loop iteration: %d\\n", i);\n    }\n    return 0;\n}');
-  const [inputText, setInputText] = useState('');
-  
-  const [outputCode, setOutputCode] = useState('');
-  const [outputStatus, setOutputStatus] = useState('idle');
   const [isLoading, setIsLoading] = useState(false);
+  const [runToken, setRunToken] = useState(0);
+  const [indentSize, setIndentSize] = useState(4);
 
 
   const [history, setHistory] = useState([code]);
@@ -43,7 +42,6 @@ export default function App() {
 
   const handleNewFile = () => {
     updateCodeWithHistory('// Write your code here\nint main() {\n    return 0;\n}\n');
-    setOutputCode('');
   };
 
   const handleSave = () => {
@@ -70,31 +68,9 @@ export default function App() {
     updateCodeWithHistory(cleaned);
   };
 
-  const handleRun = async (e) => {
+  const handleRun = (e) => {
     if (e) e.preventDefault();
-    setIsLoading(true);
-    setOutputStatus('running');
-    setOutputCode('Compiling and running code...');
-
-    try {
-      const response = await fetch('/api/compile', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code, language, input: inputText })
-      });
-
-      const data = await response.json();
-      const outputText = data?.output || (data?.success ? '(no output)' : 'Compilation failed.');
-      setOutputCode(outputText);
-      setOutputStatus(data?.success ? 'success' : 'error');
-    } catch (error) {
-      const errMsg = error instanceof Error ? error.message : 'Failed to connect to backend compiler server.';
-      const fallbackMessage = `Error:\n${errMsg}`;
-      setOutputCode(fallbackMessage);
-      setOutputStatus('error');
-    } finally {
-      setIsLoading(false);
-    }
+    setRunToken((prev) => prev + 1);
   };
 
   return (
@@ -105,6 +81,8 @@ export default function App() {
         setTheme={setTheme} 
         language={language} 
         setLanguage={setLanguage} 
+        indentSize={indentSize} 
+        setIndentSize={setIndentSize} 
         onRun={handleRun}
         onNewFile={handleNewFile}
         onSave={handleSave}
@@ -116,17 +94,22 @@ export default function App() {
       />
       
       <main className="flex-1 p-3 overflow-hidden">
-        <Editorpanel 
-          language={language} 
-          code={code} 
-          setCode={updateCodeWithHistory} 
-          inputText={inputText}
-          setInputText={setInputText}
-          theme={theme} 
-          outputCode={outputCode}
-          outputStatus={outputStatus}
-          isLoading={isLoading}
-        />
+        <div className="h-full flex flex-col md:flex-row gap-3">
+          <Editorpanel 
+            language={language} 
+            indentSize={indentSize}
+            code={code} 
+            setCode={updateCodeWithHistory} 
+            theme={theme} 
+          />
+          <TerminalPanel
+            language={language}
+            code={code}
+            runToken={runToken}
+            setIsLoading={setIsLoading}
+            theme={theme}
+          />
+        </div>
       </main>
 
     </div>

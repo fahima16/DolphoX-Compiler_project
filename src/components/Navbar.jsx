@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 
 export default function Navbar({ 
-  theme, setTheme, language, setLanguage, onRun, toggleSidebar,
+  theme, setTheme, language, setLanguage, indentSize, setIndentSize, onRun, toggleSidebar,
   onNewFile, onSave, onBeautify, onUndo, onRedo 
 }) {
   return (
@@ -40,16 +40,7 @@ export default function Navbar({
             <button onClick={onSave} className="p-1.5 bg-slate-800 hover:bg-slate-700 rounded text-slate-300 shadow cursor-pointer" title="Save"><Save size={15} /></button>
             
             <button
-              onMouseDown={(event) => {
-                event.preventDefault();
-                event.stopPropagation();
-                onRun(event);
-              }}
-              onTouchStart={(event) => {
-                event.preventDefault();
-                event.stopPropagation();
-                onRun(event);
-              }}
+              type="button"
               onClick={(event) => {
                 event.preventDefault();
                 event.stopPropagation();
@@ -95,6 +86,24 @@ export default function Navbar({
               <option value="java">Java</option>
               <option value="python">Python</option>
             </select>
+          </div>
+          <div className="flex items-center space-x-1.5 border-l border-slate-700/50 pl-4">
+            <span className="text-xs text-slate-400 font-medium hidden sm:inline">Indent</span>
+            <button
+              type="button"
+              onClick={() => setIndentSize(Math.max(1, indentSize - 1))}
+              className="px-2 py-1 bg-slate-800 hover:bg-slate-700 rounded text-slate-200 text-xs font-semibold"
+            >
+              -
+            </button>
+            <span className="min-w-[1.5rem] text-center text-xs font-semibold text-slate-200">{indentSize}</span>
+            <button
+              type="button"
+              onClick={() => setIndentSize(Math.min(8, indentSize + 1))}
+              className="px-2 py-1 bg-slate-800 hover:bg-slate-700 rounded text-slate-200 text-xs font-semibold"
+            >
+              +
+            </button>
           </div>
 
 
