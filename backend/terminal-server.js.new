@@ -1,0 +1,95 @@
+const express = require('express');
+const cors = require('cors');
+const { spawn } = require('child_process');
+const path = require('path');
+const fs = require('fs');
+const { WebSocketServer } = require('ws');
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+const tempDir = path.join(__dirname, 'temp');
+
+const deleteFileIfExists = (filePath) => {
+  try {
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+  } catch (error) {
+    // ignore cleanup failures
+  }
+};
+
+const cleanupTempDir = () => {
+  try {
+    if (fs.existsSync(tempDir)) {
+      fs.rmSync(tempDir, { recursive: true, force: true });
+    }
+  } catch (error) {
+    // ignore cleanup failures
+  }
+  fs.mkdirSync(tempDir, { recursive: true });
+};
+
+const getTempFilePath = (prefix, ext) => {
+  const uniqueSuffix = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  return path.join(tempDir, `${prefix}_${uniqueSuffix}${ext}`);
+};
+
+const { normalizeScanfPrompt } = require('./scanf-normalizer');
+
+const compileSource = async (language, code) => {
+  const selectedLang = (language || 'c').toLowerCase();
+
+  if (selectedLang === 'c') {
+    let cCode = normalizeScanfPrompt(code);
+    if (!cCode.includes('#include <stdio.h>')) {
+      cCode = '#include <stdio.h>\n\n' + cCode;
+    }
+    const sourceFilePath = getTempFilePath('main', '.c');
+    fs.writeFileSync(sourceFilePath, cCode);
+    return { command: 'gcc', args: [sourceFilePath, '-o', path.join(tempDir, 'main.exe')], cleanup: [sourceFilePath] };
+  }
+
+  if (selectedLang === 'cpp' || selectedLang === 'c++') {
+    let cppCode = normalizeScanfPrompt(code);
+    cppCode = cppCode.replace(/#include\s*<iostream\.h>/g, '#include <iostream>');
+    if (!cppCode.includes('#include <iostream>')) {
+      cppCode = '#include <iostream>\nusing namespace std;\n\n' + cppCode;
+    }
+    const sourceFilePath = getTempFilePath('main', '.cpp');
+    fs.writeFileSync(sourceFilePath, cppCode);
+    return { command: 'g++', args: [sourceFilePath, '-o', path.join(tempDir, 'main.exe')], cleanup: [sourceFilePath] };
+  }
+
+  throw new Error('Unsupported language');
+};
+
+cleanupTempDir();
+
+app.post('/api/compile', async (req, res) => {
+  const { code, language, input } = req.body;
+  try {
+    const compiled = await compileSource(language, code);
+    const child = spawn(compiled.command, compiled.args, { windowsHide: true, shell: false });
+    let stdout = '';
+    let stderr = '';
+    child.stdout.on('data', (chunk) => { stdout += chunk.toString(); });
+    child.stderr.on('data', (chunk) => { stderr += chunk.toString(); });
+    child.on('close', () => {
+      compiled.cleanup.forEach(deleteFileIfExists);
+      res.json({ success: true, output: (stdout || stderr || '').trim() });
+    });
+    if (input) {
+      child.stdin.write(input);
+    }
+    child.stdin.end();
+  } catch (error) {
+    res.json({ success: false, output: error.message });
+  }
+});
+
+app.listen(5000, () => {
+  console.log('Terminal server is running');
+});

@@ -36,6 +36,8 @@ const ensureOutputDir = () => {
     return outputDir;
 };
 
+const { normalizeScanfPrompt } = require('./scanf-normalizer');
+
 const runProcess = (command, args, inputText, timeoutMs = 10000) => new Promise((resolve, reject) => {
     const child = spawn(command, args, { windowsHide: true });
     let stdout = '';
@@ -95,7 +97,7 @@ app.post('/api/compile', async (req, res) => {
 
     try {
         if (selectedLang === 'c') {
-            let cCode = code;
+            let cCode = normalizeScanfPrompt(code);
             if (!cCode.includes('#include <stdio.h>')) {
                 cCode = '#include <stdio.h>\n\n' + cCode;
             }
@@ -110,7 +112,7 @@ app.post('/api/compile', async (req, res) => {
         }
 
         if (selectedLang === 'cpp' || selectedLang === 'c++') {
-            let cppCode = code;
+            let cppCode = normalizeScanfPrompt(code);
             cppCode = cppCode.replace(/#include\s*<iostream\.h>/g, '#include <iostream>');
             cppCode = cppCode.replace(/#include\s*<conio\.h>/g, '#include <iostream>');
             if (!cppCode.includes('#include <iostream>')) {

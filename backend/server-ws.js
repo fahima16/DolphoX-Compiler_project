@@ -51,16 +51,7 @@ const escapeWindowsArg = (arg) => {
   return arg.includes(' ') ? `"${arg.replace(/"/g, '\\"')}"` : arg;
 };
 
-const normalizeScanfPrompt = (source) => {
-  return source.replace(/scanf\(\s*"([^\"]*?)%([^\"]*)"\s*,/g, (match, prefix, suffix) => {
-    const prompt = prefix;
-    if (!prompt.trim()) {
-      return match;
-    }
-    const escapedPrompt = prompt.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
-    return `printf("${escapedPrompt}"); scanf("%${suffix}",`;
-  });
-};
+const { normalizeScanfPrompt } = require('./scanf-normalizer');
 
 const ensureOutputDir = () => {
   const outputDir = path.join(tempDir, 'out');
@@ -158,7 +149,7 @@ const compileSource = async (language, code) => {
   }
 
   if (selectedLang === 'cpp' || selectedLang === 'c++') {
-    let cppCode = code;
+    let cppCode = normalizeScanfPrompt(code);
     cppCode = cppCode.replace(/#include\s*<iostream\.h>/g, '#include <iostream>');
     cppCode = cppCode.replace(/#include\s*<conio\.h>/g, '#include <iostream>');
     if (!cppCode.includes('#include <iostream>')) {
