@@ -1,8 +1,12 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 export default function Editorpanel({ language, indentSize, code, setCode, theme }) {
   const PAIRS = { '{': '}', '(': ')', '[': ']' };
   const indent = ' '.repeat(indentSize);
+  const [lineCount, setLineCount] = useState(36);
+  const containerRef = useRef(null);
+  const textareaRef = useRef(null);
+  const gutterRef = useRef(null);
 
   const handleEditorKeyDown = (event) => {
     const textarea = event.currentTarget;
@@ -36,7 +40,7 @@ export default function Editorpanel({ language, indentSize, code, setCode, theme
       return;
     }
 
-    if (event.key === 'Backspace' && start === end) {
+    if (event.key === 'Backspace' && start === end) { 
       const beforeCursor = code.slice(0, start);
       const afterCursor = code.slice(end);
 
@@ -110,16 +114,43 @@ export default function Editorpanel({ language, indentSize, code, setCode, theme
       });
     }
   };
+  useEffect(() => {
+    const lines = code.split('\n').length;
+    setLineCount(Math.max(36, lines));
+  }, [code]);
 
   return (
-    <div className={`w-full h-full rounded-lg border overflow-hidden shadow-2xl ${theme === 'dark' ? 'border-slate-800 bg-[#0B1426]' : 'border-slate-300 bg-white'}`}>
+    <div
+      ref={containerRef}
+      className={`relative h-full w-full overflow-hidden rounded-lg border shadow-2xl ${theme === 'dark' ? 'border-slate-800 bg-[#0B1426]' : 'border-slate-300 bg-white'}`}
+    >
+      {/* Left line-number gutter */}
+      <div ref={gutterRef} className="absolute left-0 top-0 bottom-0 w-12 select-none border-r border-slate-700/20 bg-transparent overflow-hidden">
+        <div className="text-xs leading-6 text-slate-400 font-mono" style={{ padding: '16px 8px 8px 8px' }}>
+          {Array.from({ length: lineCount }).map((_, i) => (
+            <div key={i} className="h-6 text-right pr-1 leading-6">{i + 1}</div>
+          ))}
+        </div>
+      </div>
+
+      {/* Watermark centered */}
+      <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+        <div className="text-[10rem] opacity-5 leading-none select-none">🐬</div>
+      </div>
+
       <textarea
+        ref={textareaRef}
         value={code}
         onChange={(e) => setCode(e.target.value || '')}
+        onScroll={() => {
+          if (gutterRef.current && textareaRef.current) {
+            gutterRef.current.scrollTop = textareaRef.current.scrollTop;
+          }
+        }}
         onKeyDown={handleEditorKeyDown}
         spellCheck={false}
-        className={`w-full h-full resize-none border-0 outline-none p-4 font-mono text-sm leading-6 ${theme === 'dark' ? 'bg-[#0B1426] text-slate-100' : 'bg-white text-slate-900'}`}
-        style={{ fontFamily: "'Fira Code', 'Courier New', monospace" }}
+        className={`relative z-0 h-full w-full resize-none border-0 font-mono text-sm outline-none ${theme === 'dark' ? 'bg-transparent text-slate-100' : 'bg-transparent text-slate-900'}`}
+        style={{ fontFamily: "'Fira Code', 'Courier New', monospace", padding: '16px', paddingLeft: '76px', lineHeight: '24px' }}
       />
     </div>
   );

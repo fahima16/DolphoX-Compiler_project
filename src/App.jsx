@@ -94,14 +94,16 @@ export default function App() {
       />
       
       <main className="flex-1 p-3 overflow-hidden">
-        <div className="h-full flex flex-col md:flex-row gap-3">
-          <Editorpanel 
-            language={language} 
-            indentSize={indentSize}
-            code={code} 
-            setCode={updateCodeWithHistory} 
-            theme={theme} 
-          />
+        <div className="h-full flex flex-col gap-3">
+          <div className="flex-1">
+            <Editorpanel 
+              language={language} 
+              indentSize={indentSize}
+              code={code} 
+              setCode={updateCodeWithHistory} 
+              theme={theme} 
+            />
+          </div>
           <TerminalPanel
             language={language}
             code={code}

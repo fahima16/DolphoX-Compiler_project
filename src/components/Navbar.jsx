@@ -36,9 +36,8 @@ export default function Navbar({
 
           <div className="flex flex-wrap items-center gap-1.5 border-l border-slate-700/50 pl-4">
             <button onClick={onNewFile} className="p-1.5 bg-slate-800 hover:bg-slate-700 rounded text-slate-300 shadow cursor-pointer" title="New File"><FileText size={15} /></button>
-            <button onClick={onNewFile} className="p-1.5 bg-slate-800 hover:bg-slate-700 rounded text-slate-300 shadow cursor-pointer" title="New Project"><FolderPlus size={15} /></button>
-            <button onClick={onSave} className="p-1.5 bg-slate-800 hover:bg-slate-700 rounded text-slate-300 shadow cursor-pointer" title="Save"><Save size={15} /></button>
-            
+          
+           
             <button
               type="button"
               onClick={(event) => {
@@ -52,21 +51,12 @@ export default function Navbar({
             >
               <Play size={13} /> <span>Run</span>
             </button>
-            <button className="flex items-center space-x-1 px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded text-xs font-semibold shadow cursor-pointer">
-              <Bug size={13} /> <span>Debug</span>
-            </button>
-            <button className="flex items-center space-x-1 px-3 py-1.5 bg-rose-600 hover:bg-rose-500 text-white rounded text-xs font-semibold shadow cursor-pointer">
-              <Square size={13} /> <span>Stop</span>
-            </button>
-            <button onClick={onSave} className="flex items-center space-x-1 px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded text-xs shadow cursor-pointer">
-              <Share2 size={13} /> <span>Share</span>
-            </button>
+            
+            
             <button onClick={onSave} className="flex items-center space-x-1 px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded text-xs shadow cursor-pointer">
               <Save size={13} /> <span>Save</span>
             </button>
-            <button onClick={onBeautify} className="flex items-center space-x-1 px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded text-xs shadow cursor-pointer">
-              <Wand2 size={13} /> <span>Beautify</span>
-            </button>
+            
           </div>
         </div>
 
@@ -88,27 +78,13 @@ export default function Navbar({
             </select>
           </div>
           <div className="flex items-center space-x-1.5 border-l border-slate-700/50 pl-4">
-            <span className="text-xs text-slate-400 font-medium hidden sm:inline">Indent</span>
-            <button
-              type="button"
-              onClick={() => setIndentSize(Math.max(1, indentSize - 1))}
-              className="px-2 py-1 bg-slate-800 hover:bg-slate-700 rounded text-slate-200 text-xs font-semibold"
-            >
-              -
-            </button>
-            <span className="min-w-[1.5rem] text-center text-xs font-semibold text-slate-200">{indentSize}</span>
-            <button
-              type="button"
-              onClick={() => setIndentSize(Math.min(8, indentSize + 1))}
-              className="px-2 py-1 bg-slate-800 hover:bg-slate-700 rounded text-slate-200 text-xs font-semibold"
-            >
-              +
-            </button>
+           
+            
           </div>
 
 
           <div className="flex items-center space-x-2 bg-slate-800/80 px-2.5 py-1 rounded-full border border-slate-700 shadow-inner">
-            <span className="text-[11px] text-slate-300 font-medium hidden sm:inline">Theme toggle</span>
+            <span className="text-[11px] text-slate-300 font-medium hidden sm:inline">Theme</span>
             <button 
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
               className={`w-9 h-4.5 flex items-center rounded-full p-0.5 transition-colors duration-300 cursor-pointer ${
@@ -122,9 +98,7 @@ export default function Navbar({
             {theme === 'dark' ? <Moon size={13} className="text-cyan-400" /> : <Sun size={13} className="text-amber-400" />}
           </div>
 
-          <button className="p-1.5 bg-slate-800 hover:bg-slate-700 rounded text-slate-300 hidden sm:block cursor-pointer">
-            <Settings size={15} />
-          </button>
+          
         </div>
 
       </div>
@@ -140,8 +114,7 @@ export default function Navbar({
           <span className="text-slate-700">|</span>
           
           <button onClick={onNewFile} className="p-1 hover:bg-slate-800 hover:text-white rounded transition cursor-pointer" title="New File"><FileText size={14} /></button>
-          <button onClick={() => alert('Outline panel active')} className="p-1 hover:bg-slate-800 hover:text-white rounded transition cursor-pointer" title="Outline"><ListTree size={14} /></button>
-          
+
           <button 
             onClick={() => {
               if (!document.fullscreenElement) {
@@ -158,13 +131,12 @@ export default function Navbar({
           
           <span className="text-slate-700">|</span>
           
-          <button onClick={onSave} className="p-1 hover:bg-slate-800 hover:text-white rounded transition cursor-pointer" title="Download Code"><Download size={14} /></button>
+          
           <button onClick={() => window.location.reload()} className="p-1 hover:bg-slate-800 hover:text-white rounded transition cursor-pointer" title="Reset Workspace"><RefreshCw size={14} /></button>
           
-          <span className="px-2 py-0.5 text-xs bg-slate-800 text-slate-300 font-mono rounded">Lab</span>
           
-          <button className="p-1 hover:bg-slate-800 hover:text-white rounded transition cursor-pointer" title="CPU Stats"><Cpu size={14} /></button>
-          <button className="p-1 hover:bg-slate-800 hover:text-white rounded transition cursor-pointer" title="Code Analysis"><Code2 size={14} /></button>
+          
+
         </div>
       </div>
 

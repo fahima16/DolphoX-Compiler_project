@@ -71,11 +71,12 @@ export default function TerminalPanel({ runToken, language, code, setIsLoading, 
   }, [runToken]);
 
   return (
-    <div className="w-full md:w-1/3 rounded-lg border overflow-hidden shadow-2xl bg-[#060D1A] text-slate-200">
-      <div className="px-4 py-2 border-b text-xs font-bold uppercase tracking-wider text-slate-400">
-        Terminal Output
+    <div className="w-full rounded-lg border overflow-hidden shadow-2xl bg-[#060D1A] text-slate-200" style={{ minHeight: 140 }}>
+      <div className="flex items-center justify-between px-4 py-2 border-b text-sm font-bold uppercase tracking-wider text-slate-300">
+        <div>Build & Run: Output / Terminal</div>
+        <div className="h-4 w-4 rotate-45 bg-slate-700/30 rounded-sm" />
       </div>
-      <div className="h-full" ref={terminalRef} />
+      <div className="h-32 md:h-32" ref={terminalRef} />
     </div>
   );
 }

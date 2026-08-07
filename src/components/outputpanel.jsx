@@ -5,9 +5,9 @@ export default function OutputPanel({ outputData, isLoading }) {
   const [selectedLang, setSelectedLang] = useState('python'); // 'python', 'c', 'cpp', 'java'
 
   return (
-    <div className="flex flex-col h-full bg-[#1e1e1e] text-[#d4d4d4] border-t border-[#333] font-mono text-sm">
+    <div className="flex flex-col h-full overflow-hidden rounded-lg border border-[#333] bg-[#1e1e1e] text-[#d4d4d4] font-mono text-sm shadow-2xl">
       {/* Panel Header & Tabs */}
-      <div className="flex items-center justify-between px-4 bg-[#252526] border-b border-[#333] select-none py-1">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#333] bg-[#252526] px-4 py-1 select-none">
         <div className="flex items-center space-x-2 overflow-x-auto">
           {/* Main Output Tabs */}
           <button
@@ -96,7 +96,7 @@ export default function OutputPanel({ outputData, isLoading }) {
       </div>
 
       {/* Panel Content Area */}
-      <div className="flex-1 p-4 overflow-auto bg-[#1e1e1e]">
+      <div className="flex-1 overflow-auto bg-[#1e1e1e] p-4">
         {isLoading ? (
           <div className="flex items-center justify-center h-full text-gray-500 animate-pulse">
             Executing program...
