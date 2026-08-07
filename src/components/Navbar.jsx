@@ -69,7 +69,7 @@ export default function Navbar({
             <select 
               value={language} 
               onChange={(e) => setLanguage(e.target.value)}
-              className="bg-slate-800 text-cyan-300 border border-slate-700 px-2.5 py-1 rounded text-xs font-semibold focus:outline-none focus:border-cyan-500 cursor-pointer shadow"
+              className="bg-slate-900 text-cyan-300 border border-slate-700 px-5 py-1 rounded text-xs font-semibold focus:outline-none focus:border-cyan-600 cursor-pointer shadow"
             >
               <option value="c">C</option>
               <option value="cpp">C++</option>

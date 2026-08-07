@@ -6,7 +6,7 @@ import TerminalPanel from './components/TerminalPanel';
 export default function App() {
   const [theme, setTheme] = useState('dark');
   const [language, setLanguage] = useState('c');
-  const [code, setCode] = useState('int main() {\n    int n = 10;\n    for(int i = 1; i <= n; i++) {\n        printf("Loop iteration: %d\\n", i);\n    }\n    return 0;\n}');
+  const [code, setCode] = useState('#include <stdio.h>\n\nint main() {\n    printf("Hello, World!\\n");\n    return 0;\n}');
   const [isLoading, setIsLoading] = useState(false);
   const [runToken, setRunToken] = useState(0);
   const [indentSize, setIndentSize] = useState(4);
