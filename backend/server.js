@@ -143,9 +143,6 @@ app.post('/api/compile', async (req, res) => {
             let cppCode = normalizeScanfPrompt(code);
             cppCode = cppCode.replace(/#include\s*<iostream\.h>/g, '#include <iostream>');
             cppCode = cppCode.replace(/#include\s*<conio\.h>/g, '#include <iostream>');
-            if (!cppCode.includes('#include <iostream>')) {
-                cppCode = '#include <iostream>\nusing namespace std;\n\n' + cppCode;
-            }
             const sourceFilePath = getTempFilePath('main', '.cpp');
             fs.writeFileSync(sourceFilePath, cppCode);
             const outputDir = ensureOutputDir();
